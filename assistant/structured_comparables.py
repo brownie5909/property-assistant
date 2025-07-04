@@ -1,3 +1,4 @@
+
 import os
 from openai import OpenAI
 
@@ -37,14 +38,13 @@ Here are the SOLD properties:
 Here are the FOR SALE properties:
 {format_raw_data(for_sale_comps)}
 
-Use only the best 3–4 from each, and structure the JSON exactly.
+Use only the best 3–4 from each, and return the output above as valid JSON.
 """
 
     response = client.chat.completions.create(
         model="gpt-4",
-        response_format="json",
         messages=[
-            { "role": "system", "content": "You are a real estate data formatter for buyer intelligence reports." },
+            { "role": "system", "content": "You are a real estate data formatter for buyer intelligence reports. Return structured JSON only." },
             { "role": "user", "content": prompt }
         ]
     )
