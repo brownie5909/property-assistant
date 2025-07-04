@@ -15,7 +15,7 @@ def create_pdf_report(address, insights, filename, image_url=None):
 
     def draw_heading(text, y):
         c.setFont("Helvetica-Bold", 14)
-        c.drawString(margin, y, text)
+        c.drawString(margin, y, text.strip())
         return y - 24
 
     def draw_paragraph(text, y, font_size=10):
@@ -57,10 +57,13 @@ def create_pdf_report(address, insights, filename, image_url=None):
     # Parse AI content
     lines = insights.split("\n")
     for line in lines:
-        if line.strip().startswith("**") and line.strip().endswith("**"):
-            y = draw_heading(line.strip(" *"), y)
+        stripped = line.strip()
+        if stripped.startswith("##"):
+            y = draw_heading(stripped.lstrip('#').strip(), y)
+        elif stripped.startswith("**") and stripped.endswith("**"):
+            y = draw_heading(stripped.strip("*"), y)
         else:
-            y = draw_paragraph(line, y)
+            y = draw_paragraph(stripped, y)
 
     # Disclaimer
     y = 40
