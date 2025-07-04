@@ -27,7 +27,8 @@ def generate_report():
         if not address:
             return jsonify({"error": "Missing property address"}), 400
 
-        insights = generate_property_insights(address)
+        listing_data = scrape_property_info(address)
+        insights = generate_property_insights(address, listing_data)
 
         safe_name = re.sub(r'[^a-zA-Z0-9_]', '_', address)
         pdf_filename = f"property_report_{safe_name}.pdf"
