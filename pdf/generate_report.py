@@ -2,10 +2,12 @@
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.utils import ImageReader
 import textwrap
+import requests
+from io import BytesIO
 
-def create_pdf_report(address, insights, filename):
+def create_pdf_report(address, insights, filename, image_url=None):
     c = canvas.Canvas(filename, pagesize=A4)
     width, height = A4
     margin = 50
@@ -31,7 +33,20 @@ def create_pdf_report(address, insights, filename):
             y -= 6
         return y
 
-    # Cover
+    # Draw image if available
+    if image_url:
+        try:
+            response = requests.get(image_url)
+            img = ImageReader(BytesIO(response.content))
+            c.drawImage(img, margin, y - 180, width=5.5*inch, height=3*inch)
+            y -= 200
+        except Exception as e:
+            y -= 20
+            c.setFont("Helvetica-Oblique", 8)
+            c.drawString(margin, y, f"(Image failed to load: {e})")
+            y -= 20
+
+    # Cover title
     c.setFont("Helvetica-Bold", 16)
     c.drawString(margin, y, "Buyer’s Advantage Property Report")
     y -= 30
@@ -39,7 +54,7 @@ def create_pdf_report(address, insights, filename):
     c.drawString(margin, y, f"Address: {address}")
     y -= 40
 
-    # Parse AI content with markdown-style headings
+    # Parse AI content
     lines = insights.split("\n")
     for line in lines:
         if line.strip().startswith("**") and line.strip().endswith("**"):
