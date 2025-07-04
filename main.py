@@ -3,6 +3,7 @@ import os
 import re
 from drive_upload.upload_to_drive import upload_file_to_drive
 from assistant.openai_handler import generate_property_insights
+from assistant.structured_comparables import generate_structured_comparables
 from pdf.generate_report import create_pdf_report
 from scrapers.serp_scraper import scrape_property_info
 from scrapers.suburb_scraper import scrape_suburb_insights
@@ -38,7 +39,8 @@ def generate_report():
         sold_comps = scrape_comparables(address, type="sold")
         for_sale_comps = scrape_comparables(address, type="forsale")
 
-        insights = generate_property_insights(address, listing_data, suburb_data, sold_comps, for_sale_comps)
+        structured_comps = generate_structured_comparables(address, sold_comps, for_sale_comps)
+        insights = generate_property_insights(address, listing_data, suburb_data, structured_comps)
 
         safe_name = re.sub(r'[^a-zA-Z0-9_]', '_', address)
         pdf_filename = f"property_report_{safe_name}.pdf"
