@@ -40,7 +40,7 @@ def generate_report():
         for_sale_comps = scrape_comparables(address, type="forsale")
 
         structured_comps = generate_structured_comparables(address, sold_comps, for_sale_comps)
-        insights = generate_property_insights(address, listing_data, suburb_data, structured_comps)
+        insights = generate_property_insights(address, listing_data, suburb_data, sold_comps, for_sale_comps)
 
         safe_name = re.sub(r'[^a-zA-Z0-9_]', '_', address)
         pdf_filename = f"property_report_{safe_name}.pdf"
