@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import os
+import re
 from drive_upload.upload_to_drive import upload_file_to_drive
 from assistant.openai_handler import generate_property_insights
 
@@ -26,7 +27,8 @@ def generate_report():
 
         insights = generate_property_insights(address)
 
-        pdf_filename = f"property_report_{address.replace(' ', '_')}.txt"
+        safe_name = re.sub(r'[^a-zA-Z0-9_]', '_', address)
+        pdf_filename = f"property_report_{safe_name}.txt"
         with open(pdf_filename, "w") as f:
             f.write(insights)
 
