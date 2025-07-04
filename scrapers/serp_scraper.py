@@ -1,5 +1,5 @@
 import os
-from serpapi import GoogleSearch
+from serpapi.google_search import GoogleSearch
 
 def scrape_property_info(address):
     api_key = os.environ.get("SERPAPI_API_KEY")
