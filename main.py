@@ -4,7 +4,7 @@ from drive_upload.upload_to_drive import upload_file_to_drive
 
 app = Flask(__name__)
 
-@app.route("/upload-test", methods=[GET, "POST"])
+@app.route("/upload-test", methods=["GET", "POST"])
 def upload_test():
     # Create a sample file to upload
     sample_filename = "sample_report.txt"
