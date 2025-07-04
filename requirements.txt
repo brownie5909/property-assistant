@@ -6,3 +6,4 @@ google-auth-oauthlib
 reportlab
 requests
 serpapi
+google-search-results
