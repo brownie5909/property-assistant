@@ -21,35 +21,39 @@ def generate_property_insights(address, listing_data, suburb_data, sold_comps, f
 
     prompt = f"""You are an expert Australian property assistant.
 
-Please analyse the following property report and provide real, specific and truthful insights ONLY based on the content below. Do NOT make up data or hallucinate facts.
+Please analyse the following property and provide real, specific, data-backed insights.
+Use only the data provided below. Do NOT make up prices, links, or facts.
 
 Address: {address}
 
-### Current Listing Information:
+### Listing Information:
 {listings_text}
 
-### Suburb Trends and Market Data:
+### Suburb Market Context:
 {suburb_text}
 
 {format_comparables("Recent SOLD", sold_comps)}
-{format_comparables("Current FOR SALE", for_sale_comps)}
+{format_comparables("Currently FOR SALE", for_sale_comps)}
 
-Please provide a structured report with:
+### Instructions:
+- You MUST list at least 2-3 recent sold and for-sale properties as examples in your report.
+- Use bullet points and markdown-style headers (## or **) for formatting.
+- Never hallucinate or assume values that aren’t present in the data above.
+- This report will be read by home buyers relying on factual insights.
 
-1. Estimated market value or range
-2. Red flags or negotiation factors
-3. Summary of features (bed/bath, land size, style, agent)
-4. Comparable analysis referencing actual properties
-5. Mortgage impact estimate (20% deposit, 6.2% interest, 30 years)
-6. Buyer advice and next steps
-
-Use markdown-style formatting: bold section headers, short bullet points, and no filler. Make this read like a sharp, data-driven buyer’s report.
+Now write the report including:
+1. Estimated market value (based on provided comparables)
+2. Pricing red flags or negotiation considerations
+3. Summary of property features (with agent/source details)
+4. Comparable listings section with at least 3 actual examples
+5. Mortgage impact estimate (20% deposit, 6.2% interest, 30-year term)
+6. Buyer advice and recommended next steps
 """
 
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[
-            { "role": "system", "content": "You are a professional AI assistant for Australian home buyers. Do not invent facts. Only reference what you know from the user." },
+            { "role": "system", "content": "You are a professional AI for Australian property buyers. You must not hallucinate or make up data." },
             { "role": "user", "content": prompt }
         ]
     )
