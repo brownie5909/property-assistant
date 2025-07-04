@@ -1,4 +1,3 @@
-
 import os
 from openai import OpenAI
 
@@ -17,17 +16,18 @@ Address being analysed: {address}
 
 ONLY use properties sold in 2024 or listed now. Ignore anything too old or vague.
 
-Format your output like this:
+Format your output exactly like this:
+
 [
-  {
+  {{
     "title": "...",
-    "type": "sold" or "for-sale",
+    "type": "sold",
     "price": "$980,000",
     "bedrooms": 3,
     "bathrooms": 2,
     "comment": "Sold 3 months ago in same complex",
     "confidence": "high"
-  },
+  }},
   ...
 ]
 
