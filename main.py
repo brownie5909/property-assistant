@@ -6,6 +6,7 @@ from assistant.openai_handler import generate_property_insights
 from pdf.generate_report import create_pdf_report
 from scrapers.serp_scraper import scrape_property_info
 from scrapers.suburb_scraper import scrape_suburb_insights
+from scrapers.comps_scraper import scrape_comparables
 
 app = Flask(__name__)
 
@@ -30,17 +31,18 @@ def generate_report():
 
         listing_data = scrape_property_info(address)
 
-        # extract suburb from address
         suburb_match = re.search(r",\s*(.*?)\s+QLD", address)
         suburb = suburb_match.group(1).strip() if suburb_match else ""
         suburb_data = scrape_suburb_insights(suburb) if suburb else []
 
-        insights = generate_property_insights(address, listing_data, suburb_data)
+        sold_comps = scrape_comparables(address, type="sold")
+        for_sale_comps = scrape_comparables(address, type="forsale")
+
+        insights = generate_property_insights(address, listing_data, suburb_data, sold_comps, for_sale_comps)
 
         safe_name = re.sub(r'[^a-zA-Z0-9_]', '_', address)
         pdf_filename = f"property_report_{safe_name}.pdf"
 
-        # Try to find image from listing_data
         image_url = None
         for entry in listing_data:
             if 'link' in entry and 'realestate.com.au' in entry['link']:
