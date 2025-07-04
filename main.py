@@ -5,6 +5,7 @@ from drive_upload.upload_to_drive import upload_file_to_drive
 from assistant.openai_handler import generate_property_insights
 from pdf.generate_report import create_pdf_report
 from scrapers.serp_scraper import scrape_property_info
+from scrapers.suburb_scraper import scrape_suburb_insights
 
 app = Flask(__name__)
 
@@ -28,7 +29,13 @@ def generate_report():
             return jsonify({"error": "Missing property address"}), 400
 
         listing_data = scrape_property_info(address)
-        insights = generate_property_insights(address, listing_data)
+
+        # extract suburb from address
+        suburb_match = re.search(r",\s*(.*?)\s+QLD", address)
+        suburb = suburb_match.group(1).strip() if suburb_match else ""
+        suburb_data = scrape_suburb_insights(suburb) if suburb else []
+
+        insights = generate_property_insights(address, listing_data, suburb_data)
 
         safe_name = re.sub(r'[^a-zA-Z0-9_]', '_', address)
         pdf_filename = f"property_report_{safe_name}.pdf"
