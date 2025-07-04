@@ -5,55 +5,47 @@ from openai import OpenAI
 def generate_property_insights(address, listing_data, suburb_data, sold_comps, for_sale_comps):
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-    def format_comparables(label, comps):
-        section = f"\n\n### {label} Listings:\n"
+    def format_comps(title, comps):
+        section = f"\n### {title} Listings:\n"
         for c in comps:
-            section += f"- {c.get('title', '')}\n  {c.get('snippet', '')}\n  {c.get('link', '')}\n"
+            section += f"- {c.get('title', '')} | {c.get('price', '')} | {c.get('bedrooms', '')} bed / {c.get('bathrooms', '')} bath | {c.get('link', '')}\n"
         return section
 
-    listings_text = ""
-    for item in listing_data:
-        listings_text += f"- {item.get('title', '')}\n  {item.get('snippet', '')}\n  {item.get('link', '')}\n"
+    listings_text = "\n".join([f"- {i.get('title', '')}\n  {i.get('snippet', '')}\n  {i.get('link', '')}" for i in listing_data])
+    suburb_text = "\n".join([f"- {i.get('title', '')}\n  {i.get('snippet', '')}\n  {i.get('link', '')}" for i in suburb_data])
 
-    suburb_text = ""
-    for item in suburb_data:
-        suburb_text += f"- {item.get('title', '')}\n  {item.get('snippet', '')}\n  {item.get('link', '')}\n"
-
-    prompt = f"""You are an expert Australian property assistant.
-
-Please analyse the following property and provide real, specific, data-backed insights.
-Use only the data provided below. Do NOT make up prices, links, or facts.
+    prompt = f"""You are an expert Australian property assistant. Based on the real data below, generate a price-based buyer report.
 
 Address: {address}
 
-### Listing Information:
+### Current Listing:
 {listings_text}
 
-### Suburb Market Context:
+### Suburb Trends:
 {suburb_text}
 
-{format_comparables("Recent SOLD", sold_comps)}
-{format_comparables("Currently FOR SALE", for_sale_comps)}
+{format_comps("Sold Comparables", sold_comps)}
+{format_comps("For-Sale Comparables", for_sale_comps)}
 
-### Instructions:
-- You MUST list at least 2-3 recent sold and for-sale properties as examples in your report.
-- Use bullet points and markdown-style headers (## or **) for formatting.
-- Never hallucinate or assume values that aren’t present in the data above.
-- This report will be read by home buyers relying on factual insights.
+Instructions:
+- Suggest a buyer offer range based on the comparables provided (e.g. "$1.08M–$1.12M").
+- You may use judgement to estimate price confidence, but never invent properties or prices.
+- Use **markdown-style bold headers** and bullet points.
+- This will be part of a buyer’s PDF report.
 
-Now write the report including:
-1. Estimated market value (based on provided comparables)
-2. Pricing red flags or negotiation considerations
-3. Summary of property features (with agent/source details)
-4. Comparable listings section with at least 3 actual examples
-5. Mortgage impact estimate (20% deposit, 6.2% interest, 30-year term)
-6. Buyer advice and recommended next steps
+Structure:
+1. Estimated Price Range
+2. Red Flags or Negotiation Notes
+3. Summary of Features
+4. Comparable Listings Summary
+5. Mortgage Impact Estimate (20% deposit, 6.2% interest, 30 years)
+6. Buyer Advice and Next Steps
 """
 
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[
-            { "role": "system", "content": "You are a professional AI for Australian property buyers. You must not hallucinate or make up data." },
+            { "role": "system", "content": "You are a reliable property insights assistant for Australian buyers. Use real data and estimate based on context. Do not make up listings." },
             { "role": "user", "content": prompt }
         ]
     )
