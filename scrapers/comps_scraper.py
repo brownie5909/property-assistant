@@ -1,5 +1,6 @@
 
 import os
+import re
 from serpapi import GoogleSearch
 
 def scrape_comparables(address, type="sold"):
@@ -8,9 +9,9 @@ def scrape_comparables(address, type="sold"):
         raise Exception("Missing SERPAPI_API_KEY")
 
     if type == "sold":
-        query = f"{address} recent sold property site:domain.com.au"
+        query = f"{address} recent sold unit site:domain.com.au"
     else:
-        query = f"{address} for sale site:realestate.com.au"
+        query = f"{address} for sale unit site:realestate.com.au"
 
     params = {
         "engine": "google",
@@ -24,15 +25,26 @@ def scrape_comparables(address, type="sold"):
 
     search = GoogleSearch(params)
     results = search.get_dict()
-
-    top_results = results.get("organic_results", [])[:5]
     comps = []
 
-    for r in top_results:
+    for r in results.get("organic_results", [])[:5]:
+        title = r.get("title", "")
+        snippet = r.get("snippet", "")
+        link = r.get("link", "")
+
+        price_match = re.search(r"\$[\d,]+", snippet)
+        bed_match = re.search(r"(\d+)\s*bed", snippet, re.IGNORECASE)
+        bath_match = re.search(r"(\d+)\s*bath", snippet, re.IGNORECASE)
+        year_match = re.search(r"(\d{4})", snippet)
+
         comps.append({
-            "title": r.get("title", ""),
-            "link": r.get("link", ""),
-            "snippet": r.get("snippet", "")
+            "title": title,
+            "link": link,
+            "snippet": snippet,
+            "price": price_match.group() if price_match else "",
+            "bedrooms": bed_match.group(1) if bed_match else "",
+            "bathrooms": bath_match.group(1) if bath_match else "",
+            "year": year_match.group(1) if year_match else ""
         })
 
     return comps
