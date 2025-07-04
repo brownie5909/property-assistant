@@ -39,7 +39,15 @@ def generate_report():
 
         safe_name = re.sub(r'[^a-zA-Z0-9_]', '_', address)
         pdf_filename = f"property_report_{safe_name}.pdf"
-        create_pdf_report(address, insights, pdf_filename)
+
+        # Try to find image from listing_data
+        image_url = None
+        for entry in listing_data:
+            if 'link' in entry and 'realestate.com.au' in entry['link']:
+                image_url = f"https://img.realestate.com.au/property-assets/{safe_name.lower()}.jpg"
+                break
+
+        create_pdf_report(address, insights, pdf_filename, image_url=image_url)
 
         drive_link = upload_file_to_drive(pdf_filename)
         return jsonify({"summary": insights[:250] + "...", "pdf_link": drive_link})
