@@ -4,6 +4,7 @@ import re
 from drive_upload.upload_to_drive import upload_file_to_drive
 from assistant.openai_handler import generate_property_insights
 from pdf.generate_report import create_pdf_report
+from scrapers.serp_scraper import scrape_property_info
 
 app = Flask(__name__)
 
@@ -34,6 +35,20 @@ def generate_report():
 
         drive_link = upload_file_to_drive(pdf_filename)
         return jsonify({"summary": insights[:250] + "...", "pdf_link": drive_link})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/scrape-property", methods=["POST"])
+def scrape_property():
+    try:
+        data = request.get_json()
+        address = data.get("address")
+        if not address:
+            return jsonify({"error": "Missing property address"}), 400
+
+        results = scrape_property_info(address)
+        return jsonify({"results": results})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
