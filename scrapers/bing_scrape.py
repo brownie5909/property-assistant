@@ -1,4 +1,6 @@
 
+print("✅ bing_scrape.py loaded")
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -69,6 +71,7 @@ def fetch_and_summarize_pages(urls):
     }
 
 def search_and_scrape_pages(address):
+    print("🟢 search_and_scrape_pages() called with:", address)
     links = scrape_bing_for_listings(address)
     if not links:
         print("❌ No Bing links to scrape.")
