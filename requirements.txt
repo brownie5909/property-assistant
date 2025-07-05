@@ -2,7 +2,6 @@ flask
 openai
 requests
 beautifulsoup4
-serpapi==0.1.5
 google-api-python-client
 google-auth
 google-auth-httplib2
