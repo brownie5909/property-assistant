@@ -7,3 +7,4 @@ reportlab
 requests
 serpapi
 google-search-results
+beautifulsoup4
