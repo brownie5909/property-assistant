@@ -2,7 +2,8 @@
 import os
 import requests
 from bs4 import BeautifulSoup
-from serpapi import GoogleSearch
+from serpapi.google_search import GoogleSearch
+
 
 def scrape_property_page(address):
     api_key = os.environ.get("SERPAPI_API_KEY")
