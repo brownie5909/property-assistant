@@ -4,7 +4,7 @@ import re
 from drive_upload.upload_to_drive import upload_file_to_drive
 from assistant.openai_handler import generate_property_insights
 from pdf.generate_report import create_pdf_report
-from scrapers.property_page_scraper import scrape_property_page
+from scrapers.smart_web_search import smart_search_and_scrape
 
 app = Flask(__name__)
 
@@ -27,7 +27,7 @@ def generate_report():
         if not address:
             return jsonify({"error": "Missing property address"}), 400
 
-        page_data = scrape_property_page(address)
+        page_data = smart_search_and_scrape(address)
         if not page_data:
             return jsonify({"error": "Could not retrieve property data."}), 500
 
