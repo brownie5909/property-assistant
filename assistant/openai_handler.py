@@ -1,4 +1,3 @@
-
 import os
 from openai import OpenAI
 
@@ -23,9 +22,9 @@ This is for the property: {address}
 Listing URL: {listing_url}
 
 Listing content:
-"""
+\"\"\"
 {summary}
-"""
+\"\"\"
 
 Return your report in the following markdown format:
 
