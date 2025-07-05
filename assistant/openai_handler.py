@@ -1,44 +1,47 @@
+
 import os
 from openai import OpenAI
 
-def generate_property_insights(address, listing_data, suburb_data, structured_comps_json):
+def generate_property_insights(address, page_data):
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-    listings_text = "\n".join([f"- {i.get('title', '')}\n  {i.get('snippet', '')}\n  {i.get('link', '')}" for i in listing_data])
-    suburb_text = "\n".join([f"- {i.get('title', '')}\n  {i.get('snippet', '')}\n  {i.get('link', '')}" for i in suburb_data])
+    summary = page_data.get("summary_text", "")
+    listing_url = page_data.get("source_url", "")
+    image = page_data.get("image_url", "")
 
-    prompt = f"""You are an expert Australian property assistant. Based on verified data below, provide a full, buyer-focused report.
+    prompt = f"""You are a property advisor helping Australian home buyers.
 
-Address: {address}
+Analyze the following listing data to:
+1. Estimate a fair market value range
+2. Identify any red flags
+3. Suggest negotiation strategies
+4. Estimate mortgage impact
+5. Summarize the property details
 
-### Listing Details:
-{listings_text}
+ONLY use the data below. Do NOT hallucinate any facts.
+This is for the property: {address}
+Listing URL: {listing_url}
 
-### Suburb Market Context:
-{suburb_text}
+Listing content:
+"""
+{summary}
+"""
 
-### Structured Comparable Listings (already parsed):
-{structured_comps_json}
+Return your report in the following markdown format:
 
-Instructions:
-- Estimate a price range (e.g. $1.08M–$1.12M) based on comps
-- Never guess or invent data
-- Use markdown headings and bullet formatting
-- This is a PDF property report for a home buyer
-
-Write your report in this format:
 **1. Estimated Price Range and Justification**
 **2. Red Flags or Negotiation Opportunities**
 **3. Property Overview**
-**4. Comparable Listings Summary**
-**5. Mortgage Impact Estimate**
-**6. Buyer Advice and Next Steps**
+**4. Mortgage Impact Estimate**
+**5. Negotiation Strategy & Buyer Advice**
+
+Make it clear, professional, and helpful for a first-home buyer.
 """
 
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[
-            { "role": "system", "content": "You are a professional property AI for home buyers. Use only the structured data provided. No hallucinations." },
+            { "role": "system", "content": "You are a smart assistant for Australian real estate buyers. Be honest, use only provided listing info." },
             { "role": "user", "content": prompt }
         ]
     )
