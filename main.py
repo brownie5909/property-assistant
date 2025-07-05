@@ -8,6 +8,7 @@ from pdf.generate_report import create_pdf_report
 from scrapers.serp_scraper import scrape_property_info
 from scrapers.suburb_scraper import scrape_suburb_insights
 from scrapers.comps_scraper import scrape_comparables
+from scrapers.deep_scraper import deep_scrape_listing_page
 
 app = Flask(__name__)
 
@@ -36,8 +37,20 @@ def generate_report():
         suburb = suburb_match.group(1).strip() if suburb_match else ""
         suburb_data = scrape_suburb_insights(suburb) if suburb else []
 
-        sold_comps = scrape_comparables(address, type="sold")
-        for_sale_comps = scrape_comparables(address, type="forsale")
+        sold_comps_raw = scrape_comparables(address, type="sold")
+        for_sale_comps_raw = scrape_comparables(address, type="forsale")
+
+        # Deep scrape to improve data quality
+        sold_comps = []
+        for_sale_comps = []
+        for item in sold_comps_raw:
+            detail = deep_scrape_listing_page(item.get("link"))
+            if detail and detail.get("year") == "2025":
+                sold_comps.append({**item, **detail})
+        for item in for_sale_comps_raw:
+            detail = deep_scrape_listing_page(item.get("link"))
+            if detail and detail.get("year") == "2025":
+                for_sale_comps.append({**item, **detail})
 
         structured_comps = generate_structured_comparables(address, sold_comps, for_sale_comps)
         insights = generate_property_insights(address, listing_data, suburb_data, sold_comps, for_sale_comps)
