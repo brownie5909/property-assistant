@@ -4,7 +4,7 @@ import re
 from drive_upload.upload_to_drive import upload_file_to_drive
 from assistant.openai_handler import generate_property_insights
 from pdf.generate_report import create_pdf_report
-from scrapers.serp_search_scraper import search_and_scrape_pages
+from scrapers.google_scrape import search_and_scrape_pages
 
 app = Flask(__name__)
 
