@@ -11,8 +11,12 @@ def scrape_bing_for_listings(address):
 
     try:
         resp = requests.get(search_url, headers=headers, timeout=10)
-        if resp.status_code != 200:
-            print("❌ Bing search failed with status:", resp.status_code)
+        print("🔁 Bing response status:", resp.status_code)
+        print("📏 Response length:", len(resp.text))
+        print("🧪 Sample HTML snippet:", resp.text[:300])
+
+        if resp.status_code != 200 or len(resp.text.strip()) < 100:
+            print("❌ Bing search failed or empty response")
             return None
 
         soup = BeautifulSoup(resp.text, "html.parser")
@@ -21,6 +25,7 @@ def scrape_bing_for_listings(address):
             href = a["href"]
             if "realestate.com.au" in href or "domain.com.au" in href:
                 if href.startswith("http") and href not in links:
+                    print("🔗 Found Bing listing link:", href)
                     links.append(href)
         if not links:
             print("⚠️ No relevant Bing links found.")
@@ -35,14 +40,15 @@ def fetch_and_summarize_pages(urls):
     headers = {"User-Agent": "Mozilla/5.0"}
     for url in urls:
         try:
-            print("📄 Fetching page:", url)
+            print("📄 Fetching listing page:", url)
             resp = requests.get(url, headers=headers, timeout=10)
+            print("🔁 Page response status:", resp.status_code)
+            print("📏 Page content length:", len(resp.text))
             if resp.status_code != 200:
-                print("⚠️ Skipped page (status code):", resp.status_code)
                 continue
             soup = BeautifulSoup(resp.text, "html.parser")
             text = soup.get_text(separator="\n")
-            print("🧾 Text length:", len(text.strip()))
+            print("🧾 Text extracted length:", len(text.strip()))
             if len(text.strip()) > 1000:
                 summaries.append({ "url": url, "text": text[:4000] })
         except Exception as e:
